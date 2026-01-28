@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тренировка слов</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="card">
+    <h2>Выберите режим</h2>
+
+    <a href="/ruen">
+        <button class="btn btn-blue">Русский → Английский</button>
+    </a>
+
+    <a href="/enru">
+        <button class="btn btn-outline">English → Русский</button>
+    </a>
+
+    <a href="/add_word">
+        <button class="btn btn-green">Добавить слово</button>
+    </a>
+</div>
+</body>
+</html>

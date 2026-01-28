@@ -1,0 +1,136 @@
+:root {
+    --primary: #7c3aed;      /* насыщенный фиолетовый */
+    --secondary: #a78bfa;    /* мягкий лавандовый */
+    --bg: #f9f9fb;           /* светлый фон страницы */
+    --card-bg: #ffffff;       /* фон карточки */
+    --text-color: #1f2937;   /* темно-серый текст */
+    --accent: #8b5cf6;       /* дополнительный фиолетовый для выделений */
+    --input-bg: #f3f4f6;     /* светлый фон для инпутов */
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: 2rem;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+    width: 600px;
+    text-align: center;
+    border: 2px solid var(--secondary);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(124, 58, 237, 0.25);
+}
+
+h2, h3 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+}
+
+p {
+    font-size: 1.5rem;
+}
+
+.btn {
+    cursor: pointer;
+    padding: 18px 36px;
+    border-radius: 15px;
+    border: none;
+    margin: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-blue {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+.btn-blue:hover {
+    background: var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    box-shadow: none;
+}
+.btn-outline:hover {
+    background: var(--primary);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+.btn-green {
+    background: #a5b4fc; /* мягкий фиолетово-голубой */
+    color: var(--card-bg);
+    box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+}
+.btn-green:hover {
+    background: #818cf8;
+    transform: scale(1.05);
+}
+
+input {
+    width: 100%;
+    padding: 18px;
+    border: 2px solid #e5e7eb;
+    border-radius: 15px;
+    margin: 20px 0;
+    outline: none;
+    font-size: 1.6rem;
+    text-align: center;
+    background: var(--input-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    font-size: 1.2rem;
+}
+
+th, td {
+    border: 2px solid #e5e7eb;
+    padding: 15px;
+    text-align: center;
+}
+th {
+    background: var(--secondary);
+    color: #ffffff;
+}
+
+.hidden { display: none; }
+.feedback-text {
+    font-size: 1.8rem;
+    margin: 20px 0;
+    color: var(--primary);
+}

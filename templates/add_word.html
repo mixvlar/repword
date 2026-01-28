@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавить слово</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="card">
+    <h2>Добавить новое слово</h2>
+
+    <form id="addWordForm">
+        <input type="text" id="word" placeholder="Слово" required>
+        <input type="text" id="translation" placeholder="Перевод" required>
+        <input type="text" id="transcription" placeholder="Транскрипция" required>
+        <button type="submit" class="btn btn-blue">Сохранить</button>
+    </form>
+
+    <p class="feedback-text hidden" id="feedback"></p>
+
+    <!-- Кнопка "Далее" -->
+    <a href="/" class="btn btn-green hidden" id="btnHome">Далее</a>
+</div>
+
+<script>
+document.getElementById('addWordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const word = document.getElementById('word').value.trim();
+    const translation = document.getElementById('translation').value.trim();
+    const transcription = document.getElementById('transcription').value.trim();
+
+    if (!word || !translation || !transcription) return;
+
+    const response = await fetch('/add_word', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({word, translation, transcription})
+    });
+
+    const result = await response.json();
+    const feedback = document.getElementById('feedback');
+    const btnHome = document.getElementById('btnHome');
+
+    feedback.classList.remove('hidden');
+
+    if (result.status === 'ok') {
+        feedback.textContent = 'Слово добавлено!';
+        btnHome.classList.remove('hidden');
+        document.getElementById('addWordForm').classList.add('hidden');
+    } else if (result.status === 'duplicate') {
+        feedback.textContent = 'Дубликат! Это слово уже есть.';
+        btnHome.classList.remove('hidden');
+        document.getElementById('addWordForm').classList.add('hidden');
+    } else {
+        feedback.textContent = 'Ошибка при добавлении';
+    }
+});
+</script>
+</body>
+</html>

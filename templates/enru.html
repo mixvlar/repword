@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EN → RU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="card" data-mode="enru">
+
+    <div id="start-screen">
+        <h2>English → Русский</h2>
+        <button class="btn btn-blue" onclick="start()">Начать</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+        <h3 id="q-question"></h3>
+        <p id="q-transcription"></p>
+        <button class="btn btn-outline" onclick="sayCurrent()">🔊</button>
+
+        <input id="q-input" autocomplete="off" spellcheck="false">
+        <div id="q-feedback"></div>
+        <div id="q-actions"></div>
+        <div class="btn-group">
+            <button class="btn btn-outline" id="finishLaterBtn">Закончить позже</button>
+            <button class="btn btn-blue" id="nextBtn">Далее</button>
+        </div>
+    </div>
+
+    <div id="results" class="hidden">
+        <h3>Результаты</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Слово</th>
+                    <th>Перевод</th>
+                    <th>Транскрипция</th>
+                    <th>Попытка</th>
+                </tr>
+            </thead>
+            <tbody id="res-body"></tbody>
+        </table>
+        <button class="btn btn-blue" onclick="location.href='/'">На главную</button>
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

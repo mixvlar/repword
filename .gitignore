@@ -1,0 +1,32 @@
+progress.json
+words_enru.json
+words_ruen.json
+
+
+# Байтовое-скомпилированные файлы
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальные окружения
+.venv/
+venv/
+ENV/
+
+# Дистрибутивы и пакеты
+build/
+dist/
+*.egg-info/
+
+# Переменные окружения (секреты)
+.env
+
+# Настройки IDE
+.vscode/
+.idea/
+
+# Логи и отчеты тестов
+*.log
+htmlcov/
+.tox/
+.pytest_cache/
