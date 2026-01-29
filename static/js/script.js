@@ -1,6 +1,8 @@
 let queue = [];
 let attempts = {};
 let results = [];
+let totalWords = 0;
+let solvedCount = 0;
 
 const mode = document.querySelector('.card').dataset.mode;
 let currentWord = null;
@@ -9,17 +11,24 @@ async function start() {
     const res = await fetch(`/get_words/${mode}`);
     queue = await res.json();
 
-    // Восстанавливаем attempts
+    totalWords = queue.length;
+    solvedCount = 0;
+
     queue.forEach(w => attempts[w.word] = w.attempts || 1);
 
     document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('q-counter').classList.remove('hidden'); // Показываем счетчик
     document.getElementById('quiz').classList.remove('hidden');
     render();
 }
 
-// ---------------------------
 function render() {
     if (queue.length === 0) return showResults();
+
+    const counterEl = document.getElementById('q-counter');
+    if (counterEl) {
+        counterEl.innerText = `${solvedCount} / ${totalWords}`;
+    }
 
     currentWord = queue[0];
     document.getElementById('q-input').value = '';
@@ -35,12 +44,10 @@ function render() {
     }
 }
 
-// ---------------------------
 document.getElementById('q-input').onkeydown = e => {
     if (e.key === 'Enter') check();
 };
 
-// ---------------------------
 function check() {
     const val = document.getElementById('q-input').value.trim().toLowerCase();
     const correct = mode === 'ruen'
@@ -57,10 +64,13 @@ function check() {
         let actions = `<button class="btn btn-outline" onclick="sayCurrent()">🔊</button>`;
 
         if (ok) {
+            // Оборачиваем кнопки в div class="btn-group" для ряда
             actions += `
                 <p>Произнесли верно?</p>
-                <button class="btn btn-blue" onclick="step(true)">Да</button>
-                <button class="btn btn-outline" onclick="step(false)">Нет</button>
+                <div class="btn-group">
+                    <button class="btn btn-blue" onclick="step(true)">Да</button>
+                    <button class="btn btn-outline" onclick="step(false)">Нет</button>
+                </div>
             `;
         } else {
             actions += `<button class="btn btn-blue" onclick="step(false)">Далее</button>`;
@@ -74,10 +84,11 @@ function check() {
         let actions = '';
         if (!ok) {
             feedback += `<br><b>${currentWord.word}</b> — ${currentWord.translation}`;
-            // Кнопка "Я был прав" появляется ТОЛЬКО при ошибке в режиме EN->RU
             actions = `
-                <button class="btn btn-outline" onclick="forceCorrect()">Я был прав</button>
-                <button class="btn btn-blue" onclick="step(false)">Далее</button>
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="forceCorrect()">Я был прав</button>
+                    <button class="btn btn-blue" onclick="step(false)">Далее</button>
+                </div>
             `;
         } else {
             actions = `<button class="btn btn-blue" onclick="step(true)">Далее</button>`;
@@ -87,17 +98,16 @@ function check() {
     }
 }
 
-// Принудительное зачисление верного ответа
 function forceCorrect() {
-    attempts[currentWord.word] = 1; // Сбрасываем счетчик попыток на 1
+    attempts[currentWord.word] = 1;
     step(true);
 }
 
-// ---------------------------
 function step(success) {
     const w = queue.shift();
 
     if (success) {
+        solvedCount++;
         results.push({ ...w, final: attempts[w.word] });
         fetch(`/save_result/${mode}`, {
             method: 'POST',
@@ -119,9 +129,9 @@ function sayCurrent() {
     speechSynthesis.speak(u);
 }
 
-// ---------------------------
 function showResults() {
     document.getElementById('quiz').classList.add('hidden');
+    document.getElementById('q-counter').classList.add('hidden'); // Прячем счетчик
     document.getElementById('results').classList.remove('hidden');
 
     const body = document.getElementById('res-body');
@@ -138,15 +148,17 @@ function showResults() {
     });
 }
 
-// ---------------------------
 document.getElementById('finishLaterBtn').addEventListener('click', () => {
     saveProgress();
     window.location.href = '/';
 });
 
-document.getElementById('nextBtn').addEventListener('click', () => {
-    check();
-});
+const nextBtn = document.getElementById('nextBtn');
+if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+        check();
+    });
+}
 
 function saveProgress() {
     const remainingWords = queue.map(w => ({
