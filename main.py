@@ -13,6 +13,7 @@ DBS = {
 
 PROGRESS_FILE = "progress.json"
 
+
 # -------------------------
 # 🔹 Работа с базой слов
 # -------------------------
@@ -26,26 +27,57 @@ def load_db(mode):
         data = list(data.values())
     return data
 
+
 def save_db(mode, data):
     with open(DBS[mode], 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+
 def get_interval(index):
-    base = [1, 2, 3, 7, 21, 30, 60, 90, 120]
+    # index 0 = 1 день, 1 = 3 дня, 2 = 7 дней и т.д.
+    base = [1, 3, 7, 21, 30, 60, 90, 120]
+    if index < 0:
+        return 1
     if index < len(base):
         return base[index]
     return 120 + 60 * (index - len(base) + 1)
 
+
 def is_due_today(word):
     if not isinstance(word, dict):
         return False
-    if not word.get("last_repeated"):
+
+    marks = word.get("marks", [])
+
+    # 1. Если слово совсем новое — показываем сразу
+    if not marks:
         return True
+
+    # 2. Считаем разницу с последнего повторения
     last = datetime.strptime(word["last_repeated"], "%Y-%m-%d").date()
     today = date.today()
     days_passed = (today - last).days
-    interval = get_interval(len(word.get("marks", [])))
+
+    # 3. 🔹 ЛОГИКА СТРИКА (Серии успехов)
+    # Если в последний раз была ошибка (попыток > 1) — интервал 1 день
+    if marks[-1] > 1:
+        interval = 1
+    else:
+        # Считаем серию ответов "с первой попытки" с конца списка
+        strike = 0
+        for m in reversed(marks):
+            if m == 1:
+                strike += 1
+            else:
+                break  # Любая ошибка (2, 3...) прерывает серию
+
+        # Интервал зависит от длины текущей чистой серии
+        # Если strike=1 (вспомнил после ошибки), берем get_interval(0) = 1 день
+        # Если strike=2 (дважды вспомнил сам), берем get_interval(1) = 3 дня
+        interval = get_interval(strike - 1)
+
     return days_passed >= interval
+
 
 # -------------------------
 # 🔹 Работа с прогрессом
@@ -61,6 +93,7 @@ def load_progress(mode):
         return prog["words"]
     return None
 
+
 def save_progress(mode, words):
     today_str = date.today().strftime("%Y-%m-%d")
     progress = {}
@@ -74,6 +107,7 @@ def save_progress(mode, words):
     with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
         json.dump(progress, f, ensure_ascii=False, indent=2)
 
+
 # -------------------------
 # 📄 Страницы
 # -------------------------
@@ -81,35 +115,39 @@ def save_progress(mode, words):
 def index():
     return render_template('index.html')
 
+
 @app.route('/ruen')
 def ruen():
     return render_template('ruen.html')
+
 
 @app.route('/enru')
 def enru():
     return render_template('enru.html')
 
+
 @app.route('/add_word')
 def add_word_page():
     return render_template('add_word.html')
+
 
 # -------------------------
 # 🔌 API
 # -------------------------
 @app.route('/get_words/<mode>')
 def get_words(mode):
-    # Сначала проверяем прогресс
     saved_words = load_progress(mode)
     if saved_words is not None:
         return jsonify(saved_words)
-    # Иначе берём новые слова
+
     db = load_db(mode)
     today_words = [w for w in db if is_due_today(w)]
     return jsonify(today_words)
 
+
 @app.route('/save_result/<mode>', methods=['POST'])
 def save_result(mode):
-    data = request.json
+    data = request.json  # { "word": "...", "attempts": 1 }
     db = load_db(mode)
     for w in db:
         if w["word"] == data["word"]:
@@ -118,6 +156,7 @@ def save_result(mode):
             break
     save_db(mode, db)
     return jsonify({"status": "ok"})
+
 
 @app.route('/add_word', methods=['POST'])
 def add_word_api():
@@ -130,7 +169,6 @@ def add_word_api():
         "last_repeated": None
     }
 
-    # Проверка на дубликат
     duplicate = False
     for mode in ["ruen", "enru"]:
         db = load_db(mode)
@@ -141,7 +179,6 @@ def add_word_api():
     if duplicate:
         return jsonify({"status": "duplicate"})
 
-    # Добавляем слово в оба словаря
     for mode in ["ruen", "enru"]:
         db = load_db(mode)
         db.append(deepcopy(word_entry))
@@ -149,11 +186,13 @@ def add_word_api():
 
     return jsonify({"status": "ok"})
 
+
 @app.route('/finish_later/<mode>', methods=['POST'])
 def finish_later(mode):
-    data = request.json  # {"words": [...]}
+    data = request.json
     save_progress(mode, data["words"])
     return jsonify({"status": "ok"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

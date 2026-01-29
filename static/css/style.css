@@ -134,3 +134,17 @@ th {
     margin: 20px 0;
     color: var(--primary);
 }
+
+#q-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Чтобы на узких экранах кнопки не слипались */
+}
+
+/* Принудительно сделаем кнопки в фидбеке чуть компактнее, если нужно */
+#q-actions .btn {
+    margin: 5px;
+}

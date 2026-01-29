@@ -71,12 +71,26 @@ function check() {
     }
 
     if (mode === 'enru') {
+        let actions = '';
         if (!ok) {
             feedback += `<br><b>${currentWord.word}</b> — ${currentWord.translation}`;
+            // Кнопка "Я был прав" появляется ТОЛЬКО при ошибке в режиме EN->RU
+            actions = `
+                <button class="btn btn-outline" onclick="forceCorrect()">Я был прав</button>
+                <button class="btn btn-blue" onclick="step(false)">Далее</button>
+            `;
+        } else {
+            actions = `<button class="btn btn-blue" onclick="step(true)">Далее</button>`;
         }
         document.getElementById('q-feedback').innerHTML = feedback;
-        document.getElementById('q-actions').innerHTML = `<button class="btn btn-blue" onclick="step(${ok})">Далее</button>`;
+        document.getElementById('q-actions').innerHTML = actions;
     }
+}
+
+// Принудительное зачисление верного ответа
+function forceCorrect() {
+    attempts[currentWord.word] = 1; // Сбрасываем счетчик попыток на 1
+    step(true);
 }
 
 // ---------------------------
@@ -90,7 +104,6 @@ function step(success) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ word: w.word, attempts: attempts[w.word] })
         });
-        // Удаляем завершённые слова из временного прогресса
         saveProgress();
     } else {
         attempts[w.word]++;
@@ -126,19 +139,15 @@ function showResults() {
 }
 
 // ---------------------------
-// КНОПКА «ЗАКОНЧИТЬ ПОЗЖЕ»
 document.getElementById('finishLaterBtn').addEventListener('click', () => {
     saveProgress();
     window.location.href = '/';
 });
 
-// ---------------------------
-// КНОПКА «ДАЛЕЕ» — имитация Enter
 document.getElementById('nextBtn').addEventListener('click', () => {
     check();
 });
 
-// ---------------------------
 function saveProgress() {
     const remainingWords = queue.map(w => ({
         ...w,
