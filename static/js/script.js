@@ -3,21 +3,31 @@ let attempts = {};
 let results = [];
 let totalWords = 0;
 let solvedCount = 0;
-
 const mode = document.querySelector('.card').dataset.mode;
 let currentWord = null;
 
 async function start() {
     const res = await fetch(`/get_words/${mode}`);
-    queue = await res.json();
+    const data = await res.json();
 
+    if (!data || data.length === 0) {
+        alert("На сегодня слов больше нет!");
+        return;
+    }
+
+    queue = data;
     totalWords = queue.length;
     solvedCount = 0;
+    results = [];
+    attempts = {};
 
-    queue.forEach(w => attempts[w.word] = w.attempts || 1);
+    queue.forEach(w => {
+        attempts[w.word] = 1;
+    });
 
     document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('q-counter').classList.remove('hidden'); // Показываем счетчик
+    const counterEl = document.getElementById('q-counter');
+    if (counterEl) counterEl.classList.remove('hidden');
     document.getElementById('quiz').classList.remove('hidden');
     render();
 }
@@ -26,11 +36,11 @@ function render() {
     if (queue.length === 0) return showResults();
 
     const counterEl = document.getElementById('q-counter');
-    if (counterEl) {
-        counterEl.innerText = `${solvedCount} / ${totalWords}`;
-    }
+    if (counterEl) counterEl.innerText = `${solvedCount} / ${totalWords}`;
 
-    currentWord = queue[0];
+    const rawWord = queue[0];
+    currentWord = JSON.parse(JSON.stringify(rawWord));
+
     document.getElementById('q-input').value = '';
     document.getElementById('q-feedback').innerHTML = '';
     document.getElementById('q-actions').innerHTML = '';
@@ -40,86 +50,75 @@ function render() {
         document.getElementById('q-question').innerText = currentWord.translation;
     } else {
         document.getElementById('q-question').innerText = currentWord.word;
-        document.getElementById('q-transcription').innerText = currentWord.transcription;
+        const transEl = document.getElementById('q-transcription');
+        if (transEl) transEl.innerText = currentWord.transcription || '';
     }
 }
-
-document.getElementById('q-input').onkeydown = e => {
-    if (e.key === 'Enter') check();
-};
 
 function check() {
     const val = document.getElementById('q-input').value.trim().toLowerCase();
     const correct = mode === 'ruen'
         ? currentWord.word.toLowerCase()
         : currentWord.translation.toLowerCase();
-    const ok = val === correct;
+
+    const ok = (val === correct);
 
     let feedback = ok ? '✅ Верно' : '❌ Ошибка';
+    let actions = '';
 
     if (mode === 'ruen') {
         feedback += `<br><b>${currentWord.word}</b> ${currentWord.transcription || ''}`;
-        document.getElementById('q-feedback').innerHTML = feedback;
-
-        let actions = `<button class="btn btn-outline" onclick="sayCurrent()">🔊</button>`;
-
+        actions = `<button class="btn btn-outline" onclick="sayCurrent()">🔊</button>`;
         if (ok) {
-            // Оборачиваем кнопки в div class="btn-group" для ряда
             actions += `
                 <p>Произнесли верно?</p>
                 <div class="btn-group">
                     <button class="btn btn-blue" onclick="step(true)">Да</button>
                     <button class="btn btn-outline" onclick="step(false)">Нет</button>
-                </div>
-            `;
+                </div>`;
         } else {
             actions += `<button class="btn btn-blue" onclick="step(false)">Далее</button>`;
         }
-
-        document.getElementById('q-actions').innerHTML = actions;
-        return;
-    }
-
-    if (mode === 'enru') {
-        let actions = '';
+    } else {
         if (!ok) {
             feedback += `<br><b>${currentWord.word}</b> — ${currentWord.translation}`;
             actions = `
                 <div class="btn-group">
                     <button class="btn btn-outline" onclick="forceCorrect()">Я был прав</button>
                     <button class="btn btn-blue" onclick="step(false)">Далее</button>
-                </div>
-            `;
+                </div>`;
         } else {
             actions = `<button class="btn btn-blue" onclick="step(true)">Далее</button>`;
         }
-        document.getElementById('q-feedback').innerHTML = feedback;
-        document.getElementById('q-actions').innerHTML = actions;
     }
+
+    document.getElementById('q-feedback').innerHTML = feedback;
+    document.getElementById('q-actions').innerHTML = actions;
 }
 
 function forceCorrect() {
-    attempts[currentWord.word] = 1;
+    // ❗ НЕ сбрасываем attempts
     step(true);
 }
 
 function step(success) {
-    const w = queue.shift();
+    const wordKey = currentWord.word;
+    const wordObj = queue.shift();
 
     if (success) {
+        const finalAtt = attempts[wordKey];
         solvedCount++;
-        results.push({ ...w, final: attempts[w.word] });
+        results.push({ ...wordObj, final: finalAtt });
+
         fetch(`/save_result/${mode}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ word: w.word, attempts: attempts[w.word] })
+            body: JSON.stringify({ word: wordKey, attempts: finalAtt })
         });
-        saveProgress();
     } else {
-        attempts[w.word]++;
-        queue.push(w);
+        attempts[wordKey] = (attempts[wordKey] || 1) + 1;
+        queue.push(wordObj);
     }
-
     render();
 }
 
@@ -131,44 +130,27 @@ function sayCurrent() {
 
 function showResults() {
     document.getElementById('quiz').classList.add('hidden');
-    document.getElementById('q-counter').classList.add('hidden'); // Прячем счетчик
+    const counterEl = document.getElementById('q-counter');
+    if (counterEl) counterEl.classList.add('hidden');
     document.getElementById('results').classList.remove('hidden');
 
     const body = document.getElementById('res-body');
     body.innerHTML = '';
-
     results.forEach(r => {
         body.innerHTML += `
-        <tr>
-            <td>${r.word}</td>
-            <td>${r.translation}</td>
-            <td>${r.transcription || ''}</td>
-            <td>${r.final}</td>
-        </tr>`;
+            <tr>
+                <td>${r.word}</td>
+                <td>${r.translation}</td>
+                <td>${r.transcription || ''}</td>
+                <td>${r.final}</td>
+            </tr>`;
     });
 }
 
-document.getElementById('finishLaterBtn').addEventListener('click', () => {
-    saveProgress();
-    window.location.href = '/';
-});
-
-const nextBtn = document.getElementById('nextBtn');
-if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-        check();
-    });
-}
-
-function saveProgress() {
-    const remainingWords = queue.map(w => ({
-        ...w,
-        attempts: attempts[w.word] || 1
-    }));
-
-    fetch(`/finish_later/${mode}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ words: remainingWords })
-    });
-}
+document.getElementById('q-input').onkeydown = e => {
+    if (e.key === 'Enter') {
+        const btn = document.querySelector('#q-actions .btn-blue');
+        if (btn) btn.click();
+        else check();
+    }
+};

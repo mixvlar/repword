@@ -12,27 +12,25 @@
         <button class="btn btn-blue" onclick="start()">Начать</button>
     </div>
 
-    <div id="q-counter" class="text-sm text-gray-500 mb-4">0 / 0</div>
+    <!-- Счетчик прогресса -->
+    <div id="q-counter" class="text-sm text-gray-500 mb-4 hidden">0 / 0</div>
+
     <div id="quiz" class="hidden">
         <h3 id="q-question"></h3>
-        <input id="q-input" autocomplete="off" spellcheck="false">
+        <input id="q-input" autocomplete="off" spellcheck="false" placeholder="Введите перевод...">
         <div id="q-feedback"></div>
         <div id="q-actions"></div>
-        <div class="btn-group">
-            <button class="btn btn-outline" id="finishLaterBtn">Закончить позже</button>
-            <button class="btn btn-blue" id="nextBtn">Далее</button>
-        </div>
     </div>
 
     <div id="results" class="hidden">
-        <h3>Результаты</h3>
+        <h3>Результаты сессии</h3>
         <table>
             <thead>
                 <tr>
                     <th>Слово</th>
                     <th>Перевод</th>
                     <th>Транскрипция</th>
-                    <th>Попытка</th>
+                    <th>Попытки</th>
                 </tr>
             </thead>
             <tbody id="res-body"></tbody>

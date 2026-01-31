@@ -8,34 +8,31 @@
 <div class="card" data-mode="enru">
 
     <div id="start-screen">
-        <h2>English → Русский</h2>
+        <h2>Английский → Русский</h2>
         <button class="btn btn-blue" onclick="start()">Начать</button>
     </div>
 
-    <div id="q-counter" class="text-sm text-gray-500 mb-4">0 / 0</div>
+    <div id="q-counter" class="text-sm text-gray-500 mb-4 hidden">0 / 0</div>
+
     <div id="quiz" class="hidden">
         <h3 id="q-question"></h3>
-        <p id="q-transcription"></p>
-        <button class="btn btn-outline" onclick="sayCurrent()">🔊</button>
+        <p id="q-transcription" class="text-gray-400 italic"></p>
+        <button class="btn btn-outline mb-4" onclick="sayCurrent()">🔊</button>
 
-        <input id="q-input" autocomplete="off" spellcheck="false">
+        <input id="q-input" autocomplete="off" spellcheck="false" placeholder="Введите перевод...">
         <div id="q-feedback"></div>
         <div id="q-actions"></div>
-        <div class="btn-group">
-            <button class="btn btn-outline" id="finishLaterBtn">Закончить позже</button>
-            <button class="btn btn-blue" id="nextBtn">Далее</button>
-        </div>
     </div>
 
     <div id="results" class="hidden">
-        <h3>Результаты</h3>
+        <h3>Результаты сессии</h3>
         <table>
             <thead>
                 <tr>
                     <th>Слово</th>
                     <th>Перевод</th>
                     <th>Транскрипция</th>
-                    <th>Попытка</th>
+                    <th>Попытки</th>
                 </tr>
             </thead>
             <tbody id="res-body"></tbody>
