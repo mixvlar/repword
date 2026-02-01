@@ -14,5 +14,6 @@ The script schedules word reviews at specific intervals (1, 2, 3, 7, 30 days) to
    ```bash
    pip install -r requirements.txt
 
-2. **Start**
+2. **Start:**
+   ```bash
    python main.py
