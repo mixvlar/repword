@@ -50,8 +50,19 @@ function render() {
         document.getElementById('q-question').innerText = currentWord.translation;
     } else {
         document.getElementById('q-question').innerText = currentWord.word;
+
+        // Показываем транскрипцию
         const transEl = document.getElementById('q-transcription');
         if (transEl) transEl.innerText = currentWord.transcription || '';
+
+        // Показываем Уровень и Использование в режиме EN-RU
+        const extraEl = document.getElementById('q-extra-info');
+        if (extraEl) {
+            extraEl.innerHTML = `
+                <div><b>Level:</b> ${currentWord.level || '—'}</div>
+                <div><b>Use:</b> <i>${currentWord.use || '—'}</i></div>
+            `;
+        }
     }
 }
 
@@ -67,7 +78,16 @@ function check() {
     let actions = '';
 
     if (mode === 'ruen') {
+        // Доп инфо для режима RU-EN (показывается после ответа)
+        const extraInfo = `
+            <div style="margin-top: 10px; font-size: 0.9em; color: #555;">
+                <p><b>Уровень:</b> ${currentWord.level || '—'}</p>
+                <p><b>Применение:</b> <i>${currentWord.use || '—'}</i></p>
+            </div>
+        `;
         feedback += `<br><b>${currentWord.word}</b> ${currentWord.transcription || ''}`;
+        feedback += extraInfo;
+
         actions = `<button class="btn btn-outline" onclick="sayCurrent()">🔊</button>`;
         if (ok) {
             actions += `
@@ -97,7 +117,6 @@ function check() {
 }
 
 function forceCorrect() {
-    // ❗ НЕ сбрасываем attempts
     step(true);
 }
 
@@ -141,7 +160,7 @@ function showResults() {
             <tr>
                 <td>${r.word}</td>
                 <td>${r.translation}</td>
-                <td>${r.transcription || ''}</td>
+                <td>${r.level || ''}</td>
                 <td>${r.final}</td>
             </tr>`;
     });

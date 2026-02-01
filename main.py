@@ -103,6 +103,8 @@ def add_word_api():
         "word": data["word"].strip(),
         "translation": data["translation"].strip(),
         "transcription": data["transcription"].strip(),
+        "level": data["level"].strip(),
+        "use": data["use"].strip().split(),
         "marks": [],
         "last_repeated": None
     }

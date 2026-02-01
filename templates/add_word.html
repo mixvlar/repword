@@ -12,12 +12,13 @@
         <input type="text" id="word" placeholder="Слово" required>
         <input type="text" id="translation" placeholder="Перевод" required>
         <input type="text" id="transcription" placeholder="Транскрипция" required>
+        <input type="text" id="level" placeholder="Уровень ex: B1" required>
+        <input type="text" id="use" placeholder="Использование ex: W S2 S3" required>
         <button type="submit" class="btn btn-blue">Сохранить</button>
     </form>
 
     <p class="feedback-text hidden" id="feedback"></p>
 
-    <!-- Кнопка "Далее" -->
     <a href="/" class="btn btn-green hidden" id="btnHome">Далее</a>
 </div>
 
@@ -28,13 +29,15 @@ document.getElementById('addWordForm').addEventListener('submit', async (e) => {
     const word = document.getElementById('word').value.trim();
     const translation = document.getElementById('translation').value.trim();
     const transcription = document.getElementById('transcription').value.trim();
+    const level = document.getElementById('level').value.trim();
+    const use = document.getElementById('use').value.trim();
 
     if (!word || !translation || !transcription) return;
 
     const response = await fetch('/add_word', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({word, translation, transcription})
+        body: JSON.stringify({word, translation, transcription, level, use})
     });
 
     const result = await response.json();

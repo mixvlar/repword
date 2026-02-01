@@ -17,6 +17,9 @@
     <div id="quiz" class="hidden">
         <h3 id="q-question"></h3>
         <p id="q-transcription" class="text-gray-400 italic"></p>
+        <!-- Блок для уровня и использования рядом с транскрипцией -->
+        <div id="q-extra-info" class="text-sm text-gray-500 mb-2"></div>
+
         <button class="btn btn-outline mb-4" onclick="sayCurrent()">🔊</button>
 
         <input id="q-input" autocomplete="off" spellcheck="false" placeholder="Введите перевод...">
@@ -31,7 +34,7 @@
                 <tr>
                     <th>Слово</th>
                     <th>Перевод</th>
-                    <th>Транскрипция</th>
+                    <th>Уровень</th>
                     <th>Попытки</th>
                 </tr>
             </thead>
