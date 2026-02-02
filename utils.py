@@ -5,10 +5,6 @@ from datetime import date, datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-# ───────────────────────────────
-# DB paths (ФИКС)
-# ───────────────────────────────
-
 def get_db_path(mode):
     if os.environ.get("TESTING") == "True":
         data_dir = os.path.join(BASE_DIR, "tests", "data")
@@ -21,9 +17,6 @@ def get_db_path(mode):
     return os.path.join(BASE_DIR, "words_enru.json")
 
 
-# ───────────────────────────────
-# DB helpers (НЕ МЕНЯЛ)
-# ───────────────────────────────
 
 def load_db(mode):
     db_path = get_db_path(mode)
@@ -47,9 +40,6 @@ def save_db(mode, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-# ───────────────────────────────
-# ЛОГИКА ПОВТОРЕНИЯ (НЕ ТРОГАЛ)
-# ───────────────────────────────
 
 def get_interval(index):
     base = [1, 3, 7, 21, 30, 60, 90, 120]
