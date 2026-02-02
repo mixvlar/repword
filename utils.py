@@ -1,40 +1,75 @@
-import os, json
+import os
+import json
 from datetime import date, datetime
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DBS = {
-    "ruen": "words_ruen.json",
-    "enru": "words_enru.json"
-}
+
+# ───────────────────────────────
+# DB paths (ФИКС)
+# ───────────────────────────────
+
+def get_db_path(mode):
+    if os.environ.get("TESTING") == "True":
+        data_dir = os.path.join(BASE_DIR, "tests", "data")
+        os.makedirs(data_dir, exist_ok=True)
+        return os.path.join(data_dir, f"{mode}.json")
+
+    # прод — как было
+    if mode == "ruen":
+        return os.path.join(BASE_DIR, "words_ruen.json")
+    return os.path.join(BASE_DIR, "words_enru.json")
+
+
+# ───────────────────────────────
+# DB helpers (НЕ МЕНЯЛ)
+# ───────────────────────────────
 
 def load_db(mode):
-    if not os.path.exists(DBS[mode]):
-        with open(DBS[mode], "w", encoding="utf-8") as f:
+    db_path = get_db_path(mode)
+
+    if not os.path.exists(db_path):
+        with open(db_path, "w", encoding="utf-8") as f:
             json.dump([], f)
-    with open(DBS[mode], 'r', encoding='utf-8') as f:
+
+    with open(db_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
     if isinstance(data, dict):
         data = list(data.values())
+
     return data
 
 
 def save_db(mode, data):
-    with open(DBS[mode], 'w', encoding='utf-8') as f:
+    db_path = get_db_path(mode)
+    with open(db_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+# ───────────────────────────────
+# ЛОГИКА ПОВТОРЕНИЯ (НЕ ТРОГАЛ)
+# ───────────────────────────────
+
 def get_interval(index):
     base = [1, 3, 7, 21, 30, 60, 90, 120]
-    if index < 0: return 1
-    if index < len(base): return base[index]
+    if index < 0:
+        return 1
+    if index < len(base):
+        return base[index]
     return 120 + 60 * (index - len(base) + 1)
 
 
 def is_due_today(word):
-    if not isinstance(word, dict): return False
+    if not isinstance(word, dict):
+        return False
+
     marks = word.get("marks", [])
-    if not marks: return True
-    if not word.get("last_repeated"): return True
+    if not marks:
+        return True
+
+    if not word.get("last_repeated"):
+        return True
 
     last = datetime.strptime(word["last_repeated"], "%Y-%m-%d").date()
     today = date.today()
@@ -50,4 +85,5 @@ def is_due_today(word):
             else:
                 break
         interval = get_interval(strike - 1)
+
     return days_passed >= interval

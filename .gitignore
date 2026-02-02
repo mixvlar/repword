@@ -30,3 +30,4 @@ dist/
 htmlcov/
 .tox/
 .pytest_cache/
+tests/data/
