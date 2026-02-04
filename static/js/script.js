@@ -11,7 +11,7 @@ async function start() {
     const data = await res.json();
 
     if (!data || data.length === 0) {
-        alert("На сегодня слов больше нет!");
+        window.location.replace('/');
         return;
     }
 

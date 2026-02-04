@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавить слово</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="card">
+    <h3>Завтра нужно перевести с английского на русский: {{ enru }}</h3>
+    <h3>Завтра нужно перевести с русского на английский: {{ ruen }}</h3>
+
+    <p class="feedback-text hidden" id="feedback"></p>
+
+    <a href="/">
+        <button class="btn btn-green">Назад</button>
+    </a>
+</div>
+
+
+</body>
+</html>
