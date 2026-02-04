@@ -21,7 +21,7 @@ body {
 
 .card {
     background: var(--card-bg);
-    padding: 5rem;
+    padding: 3rem;
     border-radius: 2rem;
     box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
     width: 600px;

@@ -50,7 +50,7 @@ def get_interval(index):
     return 120 + 60 * (index - len(base) + 1)
 
 
-def is_due_today(word):
+def is_due_today(word, today=date.today()):
     if not isinstance(word, dict):
         return False
 
@@ -62,7 +62,7 @@ def is_due_today(word):
         return True
 
     last = datetime.strptime(word["last_repeated"], "%Y-%m-%d").date()
-    today = date.today()
+
     days_passed = (today - last).days
 
     if marks[-1] > 1:
