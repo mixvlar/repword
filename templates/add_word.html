@@ -18,12 +18,12 @@
     </form>
 
     <a href="/">
-        <button class="btn btn-green" style="background: #0fbfbc;">Назад</button>
+        <button class="btn btn-green" id="btnBack" style="background: #0fbfbc;">Назад</button>
     </a>
 
     <p class="feedback-text hidden" id="feedback"></p>
 
-    <a href="/" class="btn btn-green hidden" id="btnHome">Далее</a>
+    <a href="/" class="btn btn-green hidden" id="btnHome" style="text-decoration: none;">Далее</a>
 </div>
 
 <script>
@@ -54,6 +54,9 @@ document.getElementById('addWordForm').addEventListener('submit', async (e) => {
         feedback.textContent = 'Слово добавлено!';
         btnHome.classList.remove('hidden');
         document.getElementById('addWordForm').classList.add('hidden');
+        document.getElementById('btnBack').classList.add('hidden');
+
+
     } else if (result.status === 'duplicate') {
         feedback.textContent = 'Дубликат! Это слово уже есть.';
         btnHome.classList.remove('hidden');
