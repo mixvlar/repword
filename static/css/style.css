@@ -69,6 +69,18 @@ p {
     box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
 }
 
+.btn-red {
+    background: #ff5959;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+.btn-red:hover {
+    background: #ff5959;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px #ff5959;
+}
+
+
 .btn-outline {
     background: transparent;
     border: 2px solid var(--primary);
