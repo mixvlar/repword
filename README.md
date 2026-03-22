@@ -16,4 +16,4 @@ The script schedules word reviews at specific intervals (1, 2, 3, 7, 30 days) to
 
 2. **Start:**
    ```bash
-   python main.py
+   python3 main.py
