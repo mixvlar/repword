@@ -1,19 +1,61 @@
 # Simple SRS Vocabulary Trainer
 
-A small personal tool for learning words using spaced repetition. I built this to automate my vocabulary drills without overcomplicating the setup.
+Small Flask app for drilling vocabulary with spaced repetition.
 
-## Core Idea
-The script schedules word reviews at specific intervals (1, 2, 3, 7, 30 days) to help with long-term retention. 
-- **Simple Flask UI** for quick interactions.
-- **AI-assisted core:** Generated and tweaked using AI for personal efficiency.
-- **Focus:** Functionality over fancy architecture.
+## What It Does
+
+- Lets you learn words in two directions: `ruen` and `enru`
+- Stores all words in one file: `words.json`
+- Keeps progress for each direction separately inside each word
+- Shows words due today and how many will be due tomorrow
+
+## Data Format
+
+The app uses a single JSON file in the project root:
+
+```json
+[
+  {
+    "word": "Apple",
+    "translation": "Яблоко",
+    "transcription": "/ˈæp.əl/",
+    "level": "A1",
+    "use": ["I", "eat", "an", "apple"],
+    "progress": {
+      "ruen": {
+        "marks": [],
+        "last_repeated": null
+      },
+      "enru": {
+        "marks": [],
+        "last_repeated": null
+      }
+    }
+  }
+]
+```
 
 ## Getting Started
 
-1. **Install requirements:**
-   ```bash
-   pip install -r requirements.txt
+1. Install dependencies:
 
-2. **Start:**
-   ```bash
-   python3 main.py
+```bash
+pip install -r requirements.txt
+```
+
+2. Start the app:
+
+```bash
+python main.py
+```
+
+3. Open:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Notes
+
+- Invalid learning URLs now redirect to the home page instead of crashing.
+- In tests, the app uses `tests/data_template/words.json`.

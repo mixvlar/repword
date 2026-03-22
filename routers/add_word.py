@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
 from utils import load_db, save_db
-from copy import deepcopy
 
 add_word_bp = Blueprint('add_word', __name__)
 
@@ -17,12 +16,20 @@ def add_word_api():
         "transcription": data["transcription"].strip(),
         "level": data["level"].strip(),
         "use": data["use"].strip().split(),
-        "marks": [],
-        "last_repeated": None
+        "progress": {
+            "ruen": {
+                "marks": [],
+                "last_repeated": None
+            },
+            "enru": {
+                "marks": [],
+                "last_repeated": None
+            }
+        }
     }
-    for mode in ["ruen", "enru"]:
-        db = load_db(mode)
-        if not any(w["word"].lower() == word_entry["word"].lower() for w in db):
-            db.append(deepcopy(word_entry))
-            save_db(mode, db)
+
+    db = load_db("ruen")
+    if not any(w["word"].lower() == word_entry["word"].lower() for w in db):
+        db.append(word_entry)
+        save_db("ruen", db)
     return jsonify({"status": "ok"})

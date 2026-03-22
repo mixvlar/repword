@@ -1,0 +1,24 @@
+[
+  {
+    "word": "Apple",
+    "translation": "РЇР±Р»РѕРєРѕ",
+    "transcription": "Л€Г¦p.Й™l",
+    "level": "A1",
+    "use": [
+      "I",
+      "eat",
+      "an",
+      "apple"
+    ],
+    "progress": {
+      "ruen": {
+        "marks": [],
+        "last_repeated": null
+      },
+      "enru": {
+        "marks": [],
+        "last_repeated": null
+      }
+    }
+  }
+]
