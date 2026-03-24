@@ -27,6 +27,16 @@ def get_db_path(mode):
     return os.path.join(BASE_DIR, DB_FILENAME)
 
 
+def build_default_progress():
+    return {
+        mode: {
+            "marks": [],
+            "last_repeated": None,
+        }
+        for mode in VALID_MODES
+    }
+
+
 def ensure_progress(word):
     progress = word.get("progress")
     if not isinstance(progress, dict):
@@ -48,6 +58,52 @@ def ensure_progress(word):
 
     word["progress"] = progress
     return word
+
+
+def normalize_use(use_value):
+    if isinstance(use_value, str):
+        return use_value.strip().split()
+
+    if isinstance(use_value, list):
+        normalized = []
+        for item in use_value:
+            if not isinstance(item, str):
+                raise ValueError("Each item in 'use' must be a string")
+
+            clean_item = item.strip()
+            if clean_item:
+                normalized.append(clean_item)
+        return normalized
+
+    raise ValueError("'use' must be a string or a list of strings")
+
+
+def normalize_word_entry(raw_word):
+    if not isinstance(raw_word, dict):
+        raise ValueError("Each word entry must be a JSON object")
+
+    required_fields = ["word", "translation", "transcription", "level", "use"]
+    normalized = {}
+
+    for field in required_fields:
+        if field not in raw_word:
+            raise ValueError(f"Missing required field: {field}")
+
+    for field in ["word", "translation", "transcription", "level"]:
+        value = raw_word.get(field)
+        if not isinstance(value, str):
+            raise ValueError(f"Field '{field}' must be a string")
+
+        clean_value = value.strip()
+        if not clean_value:
+            raise ValueError(f"Field '{field}' cannot be empty")
+
+        normalized[field] = clean_value
+
+    normalized["use"] = normalize_use(raw_word.get("use"))
+    normalized["progress"] = raw_word.get("progress", build_default_progress())
+    ensure_progress(normalized)
+    return normalized
 
 
 def get_mode_progress(word, mode):

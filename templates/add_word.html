@@ -6,9 +6,15 @@
 </head>
 <body>
 <div class="card">
-    <h2>Добавить новое слово</h2>
+    <h2>Добавить новые слова</h2>
 
-    <form id="addWordForm">
+    <div id="modeChooser">
+        <p class="mode-help">Выберите, как хотите добавить слова</p>
+        <button type="button" class="btn btn-blue" id="showSingleForm">Обычное слово</button>
+        <button type="button" class="btn btn-outline" id="showJsonForm">Вставить JSON-список</button>
+    </div>
+
+    <form id="addWordForm" class="hidden">
         <input type="text" id="word" placeholder="Слово" required>
         <input type="text" id="translation" placeholder="Перевод" required>
         <input type="text" id="transcription" placeholder="Транскрипция" required>
@@ -17,8 +23,27 @@
         <button type="submit" class="btn btn-blue">Сохранить</button>
     </form>
 
+    <form id="addJsonForm" class="hidden">
+        <textarea id="jsonWords" placeholder='[
+  {
+    "word": "Apple",
+    "translation": "Яблоко",
+    "transcription": "/ˈæp.əl/",
+    "level": "A1",
+    "use": ["I", "eat", "an", "apple"],
+    "progress": {
+      "ruen": {"marks": [], "last_repeated": null},
+      "enru": {"marks": [], "last_repeated": null}
+    }
+  }
+]' required></textarea>
+        <button type="submit" class="btn btn-blue">Импортировать</button>
+    </form>
+
+    <button type="button" class="btn btn-red hidden" id="btnModeBack">Назад к выбору</button>
+
     <a href="/">
-        <button class="btn btn-red" id="btnBack"">Назад</button>
+        <button type="button" class="btn btn-red" id="btnBack">Назад</button>
     </a>
 
     <p class="feedback-text hidden" id="feedback"></p>
@@ -27,7 +52,29 @@
 </div>
 
 <script>
-document.getElementById('addWordForm').addEventListener('submit', async (e) => {
+const modeChooser = document.getElementById('modeChooser');
+const addWordForm = document.getElementById('addWordForm');
+const addJsonForm = document.getElementById('addJsonForm');
+const btnModeBack = document.getElementById('btnModeBack');
+const btnBack = document.getElementById('btnBack');
+const feedback = document.getElementById('feedback');
+const btnHome = document.getElementById('btnHome');
+
+function showSection(section) {
+    modeChooser.classList.toggle('hidden', section !== 'chooser');
+    addWordForm.classList.toggle('hidden', section !== 'single');
+    addJsonForm.classList.toggle('hidden', section !== 'json');
+    btnModeBack.classList.toggle('hidden', section === 'chooser');
+    btnBack.classList.toggle('hidden', section !== 'chooser');
+    feedback.classList.add('hidden');
+    btnHome.classList.add('hidden');
+}
+
+document.getElementById('showSingleForm').addEventListener('click', () => showSection('single'));
+document.getElementById('showJsonForm').addEventListener('click', () => showSection('json'));
+btnModeBack.addEventListener('click', () => showSection('chooser'));
+
+addWordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const word = document.getElementById('word').value.trim();
@@ -36,7 +83,7 @@ document.getElementById('addWordForm').addEventListener('submit', async (e) => {
     const level = document.getElementById('level').value.trim();
     const use = document.getElementById('use').value.trim();
 
-    if (!word || !translation || !transcription) return;
+    if (!word || !translation || !transcription || !level || !use) return;
 
     const response = await fetch('/add_word', {
         method: 'POST',
@@ -45,24 +92,54 @@ document.getElementById('addWordForm').addEventListener('submit', async (e) => {
     });
 
     const result = await response.json();
-    const feedback = document.getElementById('feedback');
-    const btnHome = document.getElementById('btnHome');
-
     feedback.classList.remove('hidden');
 
     if (result.status === 'ok') {
         feedback.textContent = 'Слово добавлено!';
         btnHome.classList.remove('hidden');
-        document.getElementById('addWordForm').classList.add('hidden');
-        document.getElementById('btnBack').classList.add('hidden');
-
-
+        addWordForm.classList.add('hidden');
+        btnModeBack.classList.add('hidden');
     } else if (result.status === 'duplicate') {
         feedback.textContent = 'Дубликат! Это слово уже есть.';
         btnHome.classList.remove('hidden');
-        document.getElementById('addWordForm').classList.add('hidden');
+        addWordForm.classList.add('hidden');
+        btnModeBack.classList.add('hidden');
     } else {
-        feedback.textContent = 'Ошибка при добавлении';
+        feedback.textContent = result.message || 'Ошибка при добавлении';
+    }
+});
+
+addJsonForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const jsonText = document.getElementById('jsonWords').value.trim();
+    if (!jsonText) return;
+
+    let words;
+    try {
+        words = JSON.parse(jsonText);
+    } catch (_error) {
+        feedback.textContent = 'Невалидный JSON.';
+        feedback.classList.remove('hidden');
+        return;
+    }
+
+    const response = await fetch('/add_word', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({words})
+    });
+
+    const result = await response.json();
+    feedback.classList.remove('hidden');
+
+    if (response.ok && result.status === 'ok') {
+        feedback.textContent = `Импорт завершен: добавлено ${result.added}, пропущено ${result.skipped}.`;
+        btnHome.classList.remove('hidden');
+        addJsonForm.classList.add('hidden');
+        btnModeBack.classList.add('hidden');
+    } else {
+        feedback.textContent = result.message || 'Ошибка при импорте';
     }
 });
 </script>
