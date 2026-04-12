@@ -1,6 +1,7 @@
 progress.json
 words.json
-
+essay.json
+words_previous.json
 
 # Байтовое-скомпилированные файлы
 __pycache__/

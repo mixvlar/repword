@@ -15,6 +15,7 @@ def test_add_new_word_flow(page: Page):
     page.fill("#transcription", "/ˈæp.əl/")
     page.fill("#level", "A1")
     page.fill("#use", "I eat an apple")
+    page.fill("#example", "I eat an apple every day.")
 
     page.click("#addWordForm button[type='submit']")
 
@@ -41,9 +42,10 @@ def test_add_json_word_list_flow(page: Page):
     "transcription": "/bəˈnɑː.nə/",
     "level": "A1",
     "use": ["yellow", "fruit"],
+    "example": "Bananas are my favorite fruit.",
     "progress": {
-      "ruen": {"marks": [], "last_repeated": null},
-      "enru": {"marks": [], "last_repeated": null}
+      "ruen": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0},
+      "enru": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0}
     }
   },
   {
@@ -52,9 +54,10 @@ def test_add_json_word_list_flow(page: Page):
     "transcription": "/ˈæp.əl/",
     "level": "A1",
     "use": ["I", "eat", "an", "apple"],
+    "example": "I eat an apple every day.",
     "progress": {
-      "ruen": {"marks": [], "last_repeated": null},
-      "enru": {"marks": [], "last_repeated": null}
+      "ruen": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0},
+      "enru": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0}
     }
   }
 ]""",

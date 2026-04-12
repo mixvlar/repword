@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify, request, redirect, url_for
-from utils import load_db, save_db, is_due_today_for_mode, get_mode_progress, is_valid_mode
+from utils import load_db, save_db, is_due_today_for_mode, apply_review_result, is_valid_mode
 from datetime import date, timedelta
 import random
 
@@ -31,9 +31,7 @@ def save_result(mode):
     db = load_db(mode)
     for w in db:
         if w["word"] == data["word"]:
-            progress = get_mode_progress(w, mode)
-            progress["marks"].append(data["attempts"])
-            progress["last_repeated"] = date.today().strftime("%Y-%m-%d")
+            apply_review_result(w, mode, data["attempts"], date.today())
             break
     save_db(mode, db)
     return jsonify({"status": "ok"})

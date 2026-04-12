@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Добавить слово</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -18,8 +19,9 @@
         <input type="text" id="word" placeholder="Слово" required>
         <input type="text" id="translation" placeholder="Перевод" required>
         <input type="text" id="transcription" placeholder="Транскрипция" required>
-        <input type="text" id="level" placeholder="Уровень ex: B1" required>
-        <input type="text" id="use" placeholder="Использование ex: W S2 S3" required>
+        <input type="text" id="level" placeholder="Уровень, например B1" required>
+        <input type="text" id="use" placeholder="Использование, например W S2 S3" required>
+        <input type="text" id="example" placeholder="Пример использования, например I eat an apple every day.">
         <button type="submit" class="btn btn-blue">Сохранить</button>
     </form>
 
@@ -31,9 +33,10 @@
     "transcription": "/ˈæp.əl/",
     "level": "A1",
     "use": ["I", "eat", "an", "apple"],
+    "example": "I eat an apple every day.",
     "progress": {
-      "ruen": {"marks": [], "last_repeated": null},
-      "enru": {"marks": [], "last_repeated": null}
+      "ruen": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0},
+      "enru": {"marks": [], "last_repeated": null, "stage_index": 0, "first_try_streak": 0}
     }
   }
 ]' required></textarea>
@@ -82,13 +85,14 @@ addWordForm.addEventListener('submit', async (e) => {
     const transcription = document.getElementById('transcription').value.trim();
     const level = document.getElementById('level').value.trim();
     const use = document.getElementById('use').value.trim();
+    const example = document.getElementById('example').value.trim();
 
     if (!word || !translation || !transcription || !level || !use) return;
 
     const response = await fetch('/add_word', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({word, translation, transcription, level, use})
+        body: JSON.stringify({word, translation, transcription, level, use, example})
     });
 
     const result = await response.json();

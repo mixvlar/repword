@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" width="640" height="520" aria-label="Right triangle inscribed in a circle with median, altitude, and angle bisector">
+  <style>
+    .bg { fill: #ffffff; }
+    .circle { fill: none; stroke: #9aa4b2; stroke-width: 3; }
+    .triangle { fill: rgba(59, 130, 246, 0.08); stroke: #111827; stroke-width: 4; }
+    .side { stroke: #111827; stroke-width: 4; fill: none; }
+    .median { stroke: #2563eb; stroke-width: 3.5; stroke-dasharray: 10 7; }
+    .altitude { stroke: #dc2626; stroke-width: 3.5; stroke-dasharray: 8 6; }
+    .bisector { stroke: #16a34a; stroke-width: 3.5; stroke-dasharray: 6 6; }
+    .helper { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 4 6; }
+    .point { fill: #111827; }
+    .center { fill: #7c3aed; }
+    .label {
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 26px;
+      fill: #111827;
+    }
+    .legend {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 18px;
+      fill: #334155;
+    }
+  </style>
+
+  <rect class="bg" width="640" height="520" />
+
+  <!-- Circle with diameter AB -->
+  <circle class="circle" cx="300" cy="260" r="180" />
+
+  <!-- Triangle vertices: A(120,260), B(480,260), C(184.298,122.112) -->
+  <polygon class="triangle" points="120,260 480,260 184.298,122.112" />
+
+  <!-- Special segments from different vertices -->
+  <!-- Median from A to midpoint M of BC -->
+  <line class="median" x1="120" y1="260" x2="332.149" y2="191.056" />
+  <!-- Altitude from C to AB -->
+  <line class="altitude" x1="184.298" y1="122.112" x2="184.298" y2="260" />
+  <!-- Angle bisector from B to side AC -->
+  <line class="bisector" x1="480" y1="260" x2="153.729" y2="187.668" />
+
+  <!-- Radius to center, for clarity -->
+  <line class="helper" x1="300" y1="260" x2="184.298" y2="122.112" />
+
+  <!-- Right angle marker at C -->
+  <polyline class="side" points="197.363,145.635 220.887,158.699 207.823,182.223" stroke-width="2.5" />
+  <!-- Right angle marker at D -->
+  <polyline class="side" points="184.298,240 204.298,240 204.298,260" stroke-width="2.5" />
+
+  <!-- Points -->
+  <circle class="point" cx="120" cy="260" r="5" />
+  <circle class="point" cx="480" cy="260" r="5" />
+  <circle class="point" cx="184.298" cy="122.112" r="5" />
+  <circle class="point" cx="184.298" cy="260" r="5" />
+  <circle class="point" cx="153.729" cy="187.668" r="5" />
+  <circle class="point" cx="332.149" cy="191.056" r="5" />
+  <circle class="center" cx="300" cy="260" r="5" />
+
+  <!-- Labels -->
+  <text class="label" x="93" y="287">A</text>
+  <text class="label" x="490" y="287">B</text>
+  <text class="label" x="165" y="111">C</text>
+  <text class="label" x="170" y="291">D</text>
+  <text class="label" x="128" y="183">K</text>
+  <text class="label" x="339" y="187">M</text>
+  <text class="label" x="309" y="251">O</text>
+
+  <!-- Legend -->
+  <line class="median" x1="60" y1="438" x2="125" y2="438" />
+  <text class="legend" x="140" y="444">AM - медиана</text>
+  <line class="altitude" x1="60" y1="470" x2="125" y2="470" />
+  <text class="legend" x="140" y="476">CD - высота</text>
+  <line class="bisector" x1="330" y1="438" x2="395" y2="438" />
+  <text class="legend" x="410" y="444">BK - биссектриса</text>
+  <text class="legend" x="330" y="476">O - центр окружности</text>
+</svg>

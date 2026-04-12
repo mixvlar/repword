@@ -5,6 +5,7 @@ from datetime import date, datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILENAME = "words.json"
 VALID_MODES = {"ruen", "enru"}
+BASE_INTERVALS = [1, 3, 7, 21, 30, 60, 90, 120]
 
 
 def is_valid_mode(mode):
@@ -32,6 +33,8 @@ def build_default_progress():
         mode: {
             "marks": [],
             "last_repeated": None,
+            "stage_index": 0,
+            "first_try_streak": 0,
         }
         for mode in VALID_MODES
     }
@@ -54,6 +57,10 @@ def ensure_progress(word):
         progress[mode] = {
             "marks": marks,
             "last_repeated": mode_progress.get("last_repeated"),
+            "stage_index": normalize_stage_index(mode_progress.get("stage_index"), marks),
+            "first_try_streak": normalize_first_try_streak(
+                mode_progress.get("first_try_streak"), marks
+            ),
         }
 
     word["progress"] = progress
@@ -76,6 +83,16 @@ def normalize_use(use_value):
         return normalized
 
     raise ValueError("'use' must be a string or a list of strings")
+
+
+def normalize_example(example_value):
+    if example_value is None:
+        return ""
+
+    if not isinstance(example_value, str):
+        raise ValueError("Field 'example' must be a string")
+
+    return example_value.strip()
 
 
 def normalize_word_entry(raw_word):
@@ -101,9 +118,47 @@ def normalize_word_entry(raw_word):
         normalized[field] = clean_value
 
     normalized["use"] = normalize_use(raw_word.get("use"))
+    normalized["example"] = normalize_example(raw_word.get("example"))
     normalized["progress"] = raw_word.get("progress", build_default_progress())
     ensure_progress(normalized)
     return normalized
+
+
+def derive_stage_index_from_marks(marks):
+    stage_index, _first_try_streak = derive_stage_state_from_marks(marks)
+    return stage_index
+
+
+def derive_first_try_streak_from_marks(marks):
+    _stage_index, first_try_streak = derive_stage_state_from_marks(marks)
+    return first_try_streak
+
+
+def derive_stage_state_from_marks(marks):
+    stage_index = 0
+    first_try_streak = 0
+
+    for mark in marks:
+        if mark == 1:
+            first_try_streak += 1
+            stage_index += 2 if first_try_streak >= 2 else 1
+        else:
+            stage_index = max(0, stage_index - 1)
+            first_try_streak = 0
+
+    return stage_index, first_try_streak
+
+
+def normalize_stage_index(stage_index, marks):
+    if isinstance(stage_index, int) and stage_index >= 0:
+        return stage_index
+    return derive_stage_index_from_marks(marks)
+
+
+def normalize_first_try_streak(first_try_streak, marks):
+    if isinstance(first_try_streak, int) and first_try_streak >= 0:
+        return first_try_streak
+    return derive_first_try_streak_from_marks(marks)
 
 
 def get_mode_progress(word, mode):
@@ -142,12 +197,11 @@ def save_db(mode, data):
 
 
 def get_interval(index):
-    base = [1, 3, 7, 21, 30, 60, 90, 120]
     if index < 0:
         return 1
-    if index < len(base):
-        return base[index]
-    return 120 + 60 * (index - len(base) + 1)
+    if index < len(BASE_INTERVALS):
+        return BASE_INTERVALS[index]
+    return BASE_INTERVALS[-1] + 30 * (index - len(BASE_INTERVALS) + 1)
 
 
 def is_due_today(word, today=date.today()):
@@ -169,16 +223,36 @@ def is_due_today_for_mode(word, mode, today=date.today()):
 
     last = datetime.strptime(last_repeated, "%Y-%m-%d").date()
     days_passed = (today - last).days
-
-    if marks[-1] > 1:
-        interval = 1
-    else:
-        strike = 0
-        for mark in reversed(marks):
-            if mark == 1:
-                strike += 1
-            else:
-                break
-        interval = get_interval(strike - 1)
+    stage_index = derive_stage_index_from_marks(marks)
+    interval = get_interval(stage_index)
 
     return days_passed >= interval
+
+
+def apply_review_result(word, mode, attempts_count, today=None):
+    ensure_valid_mode(mode)
+
+    if today is None:
+        today = date.today()
+
+    if not isinstance(attempts_count, int) or attempts_count < 1:
+        raise ValueError("attempts_count must be a positive integer")
+
+    progress = get_mode_progress(word, mode)
+    progress["marks"].append(attempts_count)
+
+    current_stage = progress.get("stage_index", 0)
+    current_streak = progress.get("first_try_streak", 0)
+
+    if attempts_count == 1:
+        new_streak = current_streak + 1
+        step_up = 2 if new_streak >= 2 else 1
+        progress["stage_index"] = current_stage + step_up
+        progress["first_try_streak"] = new_streak
+    else:
+        rollback = 2 if get_interval(current_stage) >= 60 else 1
+        progress["stage_index"] = max(0, current_stage - rollback)
+        progress["first_try_streak"] = 0
+
+    progress["last_repeated"] = today.strftime("%Y-%m-%d")
+    return progress
