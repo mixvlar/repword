@@ -5,7 +5,7 @@ from datetime import date, datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILENAME = "words.json"
 VALID_MODES = {"ruen", "enru"}
-BASE_INTERVALS = [1, 3, 7, 21, 30, 60, 90, 120]
+BASE_INTERVALS = [1, 1, 3, 7, 21, 30, 60, 90, 120]
 
 
 def is_valid_mode(mode):
@@ -95,6 +95,16 @@ def normalize_example(example_value):
     return example_value.strip()
 
 
+def normalize_explanation(explanation_value):
+    if explanation_value is None:
+        return ""
+
+    if not isinstance(explanation_value, str):
+        raise ValueError("Field 'explanation' must be a string")
+
+    return explanation_value.strip()
+
+
 def normalize_word_entry(raw_word):
     if not isinstance(raw_word, dict):
         raise ValueError("Each word entry must be a JSON object")
@@ -119,6 +129,7 @@ def normalize_word_entry(raw_word):
 
     normalized["use"] = normalize_use(raw_word.get("use"))
     normalized["example"] = normalize_example(raw_word.get("example"))
+    normalized["explanation"] = normalize_explanation(raw_word.get("explanation"))
     normalized["progress"] = raw_word.get("progress", build_default_progress())
     ensure_progress(normalized)
     return normalized

@@ -85,10 +85,12 @@ function check() {
             ? currentWord.use.join(" ")
             : (currentWord.use || "—");
         const exampleText = currentWord.example || "—";
+        const explanationText = currentWord.explanation || "—";
         const extraInfo = `
             <div style="margin-top: 10px; font-size: 0.9em; color: #555;">
                 <p><b>Уровень:</b> ${currentWord.level || "—"}</p>
                 <p><b>Применение:</b> <i>${useText}</i></p>
+                <p><b>Пояснение:</b> <i>${explanationText}</i></p>
             </div>
         `;
 

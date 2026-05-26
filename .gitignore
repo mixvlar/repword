@@ -2,6 +2,7 @@ progress.json
 words.json
 essay.json
 words_previous.json
+trash.py
 
 # Байтовое-скомпилированные файлы
 __pycache__/
