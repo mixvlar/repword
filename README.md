@@ -40,13 +40,13 @@ The app uses a single JSON file in the project root:
 1. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 2. Start the app:
 
 ```bash
-python main.py
+python3 main.py
 ```
 
 3. Open:
